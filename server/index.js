@@ -7,7 +7,20 @@ const {
   fetchProducts,
   createFavorite,
   fetchFavorites,
+  destroyFavorite,
 } = require("./db");
+
+const express = require("express");
+const app = express();
+
+// //ROUTES:
+// GET /api/users - returns array of users
+
+// GET /api/products - returns an array of products
+// GET /api/users/:id/favorites - returns an array of favorites for a user
+// POST /api/users/:id/favorites - payload: a product_id
+// returns the created favorite with a status code of 201
+// DELETE /api/users/:userId/favorites/:id - deletes a favorite for a user, returns nothing with a status code of 204
 
 const init = async () => {
   await client.connect();
@@ -34,11 +47,18 @@ const init = async () => {
     createFavorite({ product_id: jumprope.id, user_id: alfred.id }),
     createFavorite({ product_id: dumbbells.id, user_id: sebastion.id }),
     createFavorite({ product_id: yogamat.id, user_id: dean.id }),
+    createFavorite({ product_id: dumbbells.id, user_id: dean.id }),
     // createFavorite({ product_id: products[1].id, user_id: users[0].id }),
   ]);
-  const favorites = await fetchFavorites(alfred.id);
+  const alfredFavorites = await fetchFavorites(alfred.id);
+  const deanFavorites = await fetchFavorites(dean.id);
+  console.log("dean's favorite items:", deanFavorites);
   // console.log(userFavorites);
-  console.log("Favorite Products of Alred:", favorites);
-  // console.log(alfred);
+  console.log("Favorite Products of Alfred:", alfredFavorites);
+
+  // i can't figure out how to delete this?
+  const noSkills = await destroyFavorite(alfredFavorites[0].id, alfred.id);
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => console.log(`listening on port ${port}`));
 };
 init();

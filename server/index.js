@@ -55,6 +55,20 @@ app.post("/api/users/:id/favorites", async (req, res, next) => {
   }
 });
 
+app.delete("/api/users/:id/favorites", async (req, res, next) => {
+  try {
+    console.log(req.body);
+    res.status(204).send(
+      await destroyFavorite({
+        product_id: req.body.product_id,
+        user_id: req.params.id,
+      })
+    );
+  } catch (ex) {
+    next(ex);
+  }
+});
+
 const init = async () => {
   await client.connect();
   console.log("connected to database");

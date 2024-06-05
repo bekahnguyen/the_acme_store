@@ -67,7 +67,7 @@ const fetchFavorites = async (user_id) => {
   return response.rows;
 };
 
-const destroyFavorite = async (id, user_id) => {
+const destroyFavorite = async ({ id, user_id }) => {
   const SQL = `
     DELETE FROM favorite
     WHERE id = $1 AND user_id = $2

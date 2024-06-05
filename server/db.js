@@ -9,8 +9,8 @@ const createTables = async () => {
   const SQL = `
   DROP TABLE IF EXISTS favorite;
   DROP TABLE IF EXISTS product;
-  DROP TABLE IF EXISTS "user";
-    CREATE TABLE "user"(
+  DROP TABLE IF EXISTS users;
+    CREATE TABLE users(
         id UUID PRIMARY KEY,
         username VARCHAR UNIQUE,
         password VARCHAR
@@ -22,8 +22,8 @@ const createTables = async () => {
     CREATE TABLE favorite(
         id UUID PRIMARY KEY,
         product_id UUID REFERENCES product(id) NOT NULL,
-        user_id UUID REFERENCES "user"(id) NOT NULL,
-        CONSTRAINT unique_user_product UNIQUE (user_id, product_id)
+        user_id UUID REFERENCES users(id) NOT NULL,
+        CONSTRAINT unique_user_id_product_id UNIQUE (user_id, product_id)
     )
     `;
   await client.query(SQL);
@@ -32,7 +32,7 @@ const createTables = async () => {
 const createUser = async ({ username, password }) => {
   password = await bcrypt.hash(password, 5);
   const SQL = `
-INSERT into "user"(id, username, password)
+INSERT into users(id, username, password)
 VALUES($1,$2,$3)
 RETURNING *`;
   const response = await client.query(SQL, [uuid.v4(), username, password]);
@@ -58,8 +58,10 @@ const createFavorite = async ({ product_id, user_id }) => {
 };
 
 const fetchFavorites = async (user_id) => {
+  console.log(user_id);
   const SQL = `
-      SELECT * FROM favorite WHERE user_id=$1;
+      SELECT * FROM favorite WHERE user_id=$1
+      ;
     `;
   const response = await client.query(SQL, [user_id]);
   return response.rows;
@@ -75,7 +77,7 @@ const destroyFavorite = async (id, user_id) => {
 
 const fetchUsers = async () => {
   const SQL = `
-    SELECT * FROM "user";
+    SELECT * FROM users;
     `;
   const response = await client.query(SQL);
   return response.rows;

@@ -15,12 +15,45 @@ const app = express();
 
 // //ROUTES:
 // GET /api/users - returns array of users
+//server/index.js
+app.use(express.json());
+app.get("/api/users", async (req, res, next) => {
+  try {
+    res.send(await fetchUsers());
+  } catch (ex) {
+    next(ex);
+  }
+});
 
-// GET /api/products - returns an array of products
-// GET /api/users/:id/favorites - returns an array of favorites for a user
-// POST /api/users/:id/favorites - payload: a product_id
-// returns the created favorite with a status code of 201
-// DELETE /api/users/:userId/favorites/:id - deletes a favorite for a user, returns nothing with a status code of 204
+app.get("/api/products", async (req, res, next) => {
+  try {
+    res.send(await fetchProducts());
+  } catch (ex) {
+    next(ex);
+  }
+});
+
+app.get("/api/users/:id/favorites", async (req, res, next) => {
+  try {
+    res.send(await fetchFavorites(req.params.id));
+  } catch (ex) {
+    next(ex);
+  }
+});
+
+app.post("/api/users/:id/favorites", async (req, res, next) => {
+  try {
+    console.log(req.body);
+    res.status(201).send(
+      await createFavorite({
+        product_id: req.body.product_id,
+        user_id: req.params.id,
+      })
+    );
+  } catch (ex) {
+    next(ex);
+  }
+});
 
 const init = async () => {
   await client.connect();
@@ -57,7 +90,7 @@ const init = async () => {
   console.log("Favorite Products of Alfred:", alfredFavorites);
 
   // i can't figure out how to delete this?
-  const noSkills = await destroyFavorite(alfredFavorites[0].id, alfred.id);
+  // const noSkills = await destroyFavorite(alfredFavorites[0].id, alfred.id);
   const port = process.env.PORT || 3000;
   app.listen(port, () => console.log(`listening on port ${port}`));
 };
